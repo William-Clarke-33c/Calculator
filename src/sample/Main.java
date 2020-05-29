@@ -14,7 +14,10 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 public class Main extends Application {
 
+    /* Use the keyword "final" to ensure that a variable can only be assigned to once */
+    // nitpick: this can be final
     private static Stack calculationStack = new Stack();
+    // nitpick: this can be static and final
     TextField screen = new TextField();
 
     @Override
@@ -25,6 +28,7 @@ public class Main extends Application {
         primaryStage.show();
     }
 
+    // nitpick: always use private whenever possible. Also this can be static.
     public VBox createCalculator() {
         GridPane grid = new GridPane();
         addButtons(grid);
@@ -33,6 +37,7 @@ public class Main extends Application {
         return calculator;
     }
 
+    // nitpick: same as previous function
     public void addButtons(GridPane grid) {
         grid.add(createButton("0"), 0, 5);
         grid.add(createButton("."), 1, 5);
@@ -58,6 +63,11 @@ public class Main extends Application {
             if (calculationStack.isEmpty()) {
                 calculationStack.push(number.getText());
                 screen.setText(number.getText());
+            /* I think you should create a List of all of these operators and then replace
+               this chain of or's with operators.contains(value).
+               Also there's no need for "!calculationStack.isEmpty()" as this is already guaranteed
+               because this is an ELSE if, and the previous if checked for calculationStack.isEmpty().
+            */
             } else if (!calculationStack.isEmpty() && (calculationStack.peek().toString().equals("x") ||
                     calculationStack.peek().toString().equals("+") || calculationStack.peek().toString().equals("-")
                     || calculationStack.peek().toString().equals("÷"))) {
@@ -103,9 +113,13 @@ public class Main extends Application {
     public Button createButton(String value) {
         Button calculatorButton = new Button(value);
         calculatorButton.setMinWidth(25);
+        // I would guess that you want a MIN height here to make all the buttons the same size
         calculatorButton.setMaxHeight(25);
         if (value.equals("=")) {
             addEquals(calculatorButton);
+        /* I think you should create a List of all of these operators and then replace
+           this chain of or's with operators.contains(value).
+         */
         } else if (value.equals("+") || value.equals("-") || value.equals("x") ||
                 value.equals("÷")) {
             addArithmeticEvent(calculatorButton);
