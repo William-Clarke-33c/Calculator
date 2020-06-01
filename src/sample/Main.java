@@ -5,43 +5,50 @@ import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.GridPane;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
-
+import java.util.ArrayList;
 import java.util.Stack;
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.atomic.AtomicInteger;
 
 public class Main extends Application {
 
-    /* Use the keyword "final" to ensure that a variable can only be assigned to once */
-    // nitpick: this can be final
-    private static Stack calculationStack = new Stack();
-    // nitpick: this can be static and final
-    TextField screen = new TextField();
+    private static final Stack calculationStack = new Stack();
+    static final ArrayList<String> operators = new ArrayList<>();
+    static final TextField screen = new TextField();
 
     @Override
-    public void start(Stage primaryStage) throws Exception {
+    public void start(Stage primaryStage) {
         primaryStage.setTitle("Calculator");
+        assignOperators();
+        initalizeScreen();
         VBox calculator = createCalculator();
         primaryStage.setScene(new Scene(calculator, 230, 320));
         primaryStage.show();
     }
 
-    // nitpick: always use private whenever possible. Also this can be static.
-    public VBox createCalculator() {
+    private void assignOperators() {
+        operators.add("+");
+        operators.add("/");
+        operators.add("÷");
+        operators.add("x");
+    }
+
+    private void initalizeScreen(){
+        screen.setMinHeight(50);
+        screen.setDisable(true);
+        screen.setStyle("-fx-opacity: 1;");
+    }
+
+    private static VBox createCalculator() {
         GridPane grid = new GridPane();
         addButtons(grid);
         VBox calculator = new VBox();
-        calculator.getChildren().addAll(screen, grid);
+        calculator.getChildren().addAll(screen, grid, createLastRow());
         return calculator;
     }
 
-    // nitpick: same as previous function
-    public void addButtons(GridPane grid) {
-        grid.add(createButton("0"), 0, 5);
-        grid.add(createButton("."), 1, 5);
-        grid.add(createButton("="), 2, 5);
+    private static void addButtons(GridPane grid) {
         grid.add(createButton("1"), 0, 4);
         grid.add(createButton("2"), 1, 4);
         grid.add(createButton("3"), 2, 4);
@@ -54,23 +61,19 @@ public class Main extends Application {
         grid.add(createButton("8"), 1, 2);
         grid.add(createButton("9"), 2, 2);
         grid.add(createButton("x"), 3, 2);
+        grid.add(createButton("AC"), 0, 1);
+        grid.add(createButton("+/-"), 1, 1);
+        grid.add(createButton("%"), 2, 1);
         grid.add(createButton("÷"), 3, 1);
         grid.add(screen, 0, 0);
     }
 
-    public void addNumberEvent(Button number) {
+    private static void addNumberEvent(Button number) {
         number.setOnAction(e -> {
             if (calculationStack.isEmpty()) {
                 calculationStack.push(number.getText());
                 screen.setText(number.getText());
-            /* I think you should create a List of all of these operators and then replace
-               this chain of or's with operators.contains(value).
-               Also there's no need for "!calculationStack.isEmpty()" as this is already guaranteed
-               because this is an ELSE if, and the previous if checked for calculationStack.isEmpty().
-            */
-            } else if (!calculationStack.isEmpty() && (calculationStack.peek().toString().equals("x") ||
-                    calculationStack.peek().toString().equals("+") || calculationStack.peek().toString().equals("-")
-                    || calculationStack.peek().toString().equals("÷"))) {
+            } else if (operators.contains(calculationStack.peek().toString())) {
                 System.out.println("PUSHING");
                 calculationStack.push(number.getText());
                 screen.setText(number.getText());
@@ -87,7 +90,7 @@ public class Main extends Application {
         });
     }
 
-    public void addArithmeticEvent(Button arithmetic) {
+    private static void addArithmeticEvent(Button arithmetic) {
         arithmetic.setOnAction(e -> {
             if (!calculationStack.isEmpty()) {
                 System.out.println(arithmetic.getText());
@@ -98,7 +101,7 @@ public class Main extends Application {
         });
     }
 
-    public void addEquals(Button equals) {
+    private static void addEquals(Button equals) {
         equals.setOnAction((e -> {
             if (!calculationStack.isEmpty()) {
                 while (!calculationStack.isEmpty()) {
@@ -110,23 +113,73 @@ public class Main extends Application {
         }));
     }
 
-    public Button createButton(String value) {
+    private static void addClear(Button clear){
+        clear.setOnAction((e -> {
+            while(!calculationStack.isEmpty()){
+                calculationStack.pop();
+                screen.setText("");
+            }
+            if(!screen.getText().equals("")){
+                screen.setText("");
+            }
+        }));
+    }
+
+    private static void addNegative(Button negative){
+        negative.setOnAction((e -> {
+            if(!calculationStack.isEmpty()) {
+                int value = Integer.parseInt(calculationStack.pop().toString());
+                value *= -1;
+                calculationStack.push(Integer.toString(value));
+                screen.setText(Integer.toString(value));
+            }else{
+                screen.setText("ERR NULL!");
+            }
+        }));
+    }
+
+    private static void addPercentage(Button negative){
+        negative.setOnAction((e -> {
+            if(!calculationStack.isEmpty()) {
+                double value = Double.parseDouble(calculationStack.pop().toString());
+                value /= 100;
+                calculationStack.push(Double.toString(value));
+                screen.setText(Double.toString(value));
+            }else{
+                screen.setText("ERR NULL!");
+            }
+        }));
+    }
+
+    private static Button createButton(String value) {
         Button calculatorButton = new Button(value);
-        calculatorButton.setMinWidth(25);
-        // I would guess that you want a MIN height here to make all the buttons the same size
-        calculatorButton.setMaxHeight(25);
+        if(value.equals("0")){
+            calculatorButton.setMinWidth(115);
+        }else {
+            calculatorButton.setMinWidth(57.5);
+        }
+        calculatorButton.setMinHeight(54);
         if (value.equals("=")) {
             addEquals(calculatorButton);
-        /* I think you should create a List of all of these operators and then replace
-           this chain of or's with operators.contains(value).
-         */
-        } else if (value.equals("+") || value.equals("-") || value.equals("x") ||
-                value.equals("÷")) {
+        }else if (operators.contains(value)) {
             addArithmeticEvent(calculatorButton);
-        } else {
+        }else if(value.equals("AC")) {
+            addClear(calculatorButton);
+        }else if(value.equals("+/-")){
+            addNegative(calculatorButton);
+        }else if(value.equals("%")){
+            addPercentage(calculatorButton);
+        }else {
             addNumberEvent(calculatorButton);
         }
         return calculatorButton;
+    }
+
+    private static HBox createLastRow(){
+        HBox lastRow = new HBox();
+        lastRow.getChildren().addAll(createButton("0"),
+                createButton("."),createButton("="));
+        return lastRow;
     }
 
 
