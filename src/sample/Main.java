@@ -10,11 +10,13 @@ import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import java.util.ArrayList;
 import java.util.Stack;
+import java.util.concurrent.atomic.AtomicReference;
 
 public class Main extends Application {
 
     private static final Stack calculationStack = new Stack();
     static final ArrayList<String> operators = new ArrayList<>();
+    static final ArrayList<Integer> numbers = new ArrayList<>();
     static final TextField screen = new TextField();
 
     @Override
@@ -29,7 +31,7 @@ public class Main extends Application {
 
     private void assignOperators() {
         operators.add("+");
-        operators.add("/");
+        operators.add("-");
         operators.add("÷");
         operators.add("x");
     }
@@ -102,15 +104,62 @@ public class Main extends Application {
     }
 
     private static void addEquals(Button equals) {
+        AtomicReference<String> operation = new AtomicReference<>("");
         equals.setOnAction((e -> {
             if (!calculationStack.isEmpty()) {
+                System.out.println("IN EQUALS IF");
                 while (!calculationStack.isEmpty()) {
-                    System.out.println(calculationStack.pop());
+                    System.out.println("IN EQUALS WHILE");
+                    if(operators.contains(calculationStack.peek().toString())){
+                        System.out.println("CONTAINS OPERATOR");
+                        System.out.println("Operation Pop: " + calculationStack.peek().toString());
+                        operation.set(calculationStack.pop().toString());
+
+                    }else{
+                        System.out.println("Number Pop: " + calculationStack.peek().toString());
+                        numbers.add(Integer.parseInt(calculationStack.pop().toString()));
+                    }
                 }
             } else {
                 System.out.println("ERR NULL!");
             }
+            System.out.println("OUT OF IF " + operation);
+            int valueOne = numbers.get(0);
+            int valueTwo = numbers.get(1);
+            if(operation.toString().contentEquals("+")){
+                System.out.println("ADDING " + valueOne + "AND " + valueTwo);
+                calculationStack.push(valueOne + valueTwo);
+                screen.setText(Integer.toString(valueOne + valueTwo));
+                numbers.clear();
+                numbers.add(valueOne + valueTwo);
+            }
+            if(operation.toString().contentEquals("-")){
+                System.out.println("Subtracting " + valueOne + " AND " + valueTwo);
+                calculationStack.push(valueOne - valueTwo);
+                screen.setText(Integer.toString(valueOne - valueTwo));
+                numbers.clear();
+                numbers.add(valueOne - valueTwo);
+            }
+            if(operation.toString().contentEquals("x")){
+                System.out.println("Multiplying " + valueOne + " AND " + valueTwo);
+                calculationStack.push(valueOne * valueTwo);
+                screen.setText(Integer.toString(valueOne * valueTwo));
+                numbers.clear();
+                numbers.add(valueOne * valueTwo);
+            }
+            if(operation.toString().contentEquals("÷")){
+                System.out.println("Dividing " + valueTwo + " AND " + valueOne);
+                calculationStack.push(valueOne / valueTwo);
+                screen.setText(Integer.toString( valueOne / valueTwo));
+                numbers.clear();
+                numbers.add(valueOne / valueTwo);
+            }
         }));
+    }
+
+    private static double makeDouble(int value){
+        double d = value;
+        return d;
     }
 
     private static void addClear(Button clear){
@@ -118,9 +167,11 @@ public class Main extends Application {
             while(!calculationStack.isEmpty()){
                 calculationStack.pop();
                 screen.setText("");
+                numbers.clear();
             }
             if(!screen.getText().equals("")){
                 screen.setText("");
+                numbers.clear();
             }
         }));
     }
