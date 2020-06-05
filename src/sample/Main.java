@@ -10,7 +10,8 @@ import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import java.util.ArrayList;
 import java.util.Stack;
-import java.util.concurrent.atomic.AtomicReference;
+
+/* Implement an Array as a Queue */
 
 public class Main extends Application {
 
@@ -104,55 +105,41 @@ public class Main extends Application {
     }
 
     private static void addEquals(Button equals) {
-        AtomicReference<String> operation = new AtomicReference<>("");
         equals.setOnAction((e -> {
+            String operation = "";
             if (!calculationStack.isEmpty()) {
-                System.out.println("IN EQUALS IF");
                 while (!calculationStack.isEmpty()) {
-                    System.out.println("IN EQUALS WHILE");
                     if(operators.contains(calculationStack.peek().toString())){
-                        System.out.println("CONTAINS OPERATOR");
-                        System.out.println("Operation Pop: " + calculationStack.peek().toString());
-                        operation.set(calculationStack.pop().toString());
-
+                        operation = calculationStack.pop().toString();
                     }else{
-                        System.out.println("Number Pop: " + calculationStack.peek().toString());
                         numbers.add(Integer.parseInt(calculationStack.pop().toString()));
                     }
                 }
             } else {
-                System.out.println("ERR NULL!");
+                screen.setText("ERR NULL!");
             }
-            System.out.println("OUT OF IF " + operation);
-            int valueOne = numbers.get(0);
-            int valueTwo = numbers.get(1);
-            if(operation.toString().contentEquals("+")){
-                System.out.println("ADDING " + valueOne + "AND " + valueTwo);
+            System.out.println("ValueOne: " + numbers.get(1) + " ValueTwo: " + numbers.get(0));
+            int valueOne = numbers.get(1);
+            int valueTwo = numbers.get(0);
+            if(operation.equals("+")){
                 calculationStack.push(valueOne + valueTwo);
                 screen.setText(Integer.toString(valueOne + valueTwo));
                 numbers.clear();
-                numbers.add(valueOne + valueTwo);
             }
-            if(operation.toString().contentEquals("-")){
-                System.out.println("Subtracting " + valueOne + " AND " + valueTwo);
+            if(operation.equals(("-"))){
                 calculationStack.push(valueOne - valueTwo);
                 screen.setText(Integer.toString(valueOne - valueTwo));
                 numbers.clear();
-                numbers.add(valueOne - valueTwo);
             }
-            if(operation.toString().contentEquals("x")){
-                System.out.println("Multiplying " + valueOne + " AND " + valueTwo);
+            if(operation.equals(("x"))){
                 calculationStack.push(valueOne * valueTwo);
                 screen.setText(Integer.toString(valueOne * valueTwo));
                 numbers.clear();
-                numbers.add(valueOne * valueTwo);
             }
-            if(operation.toString().contentEquals("÷")){
-                System.out.println("Dividing " + valueTwo + " AND " + valueOne);
+            if(operation.equals(("÷"))){
                 calculationStack.push(valueOne / valueTwo);
                 screen.setText(Integer.toString( valueOne / valueTwo));
                 numbers.clear();
-                numbers.add(valueOne / valueTwo);
             }
         }));
     }
