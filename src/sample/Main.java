@@ -16,6 +16,7 @@ import java.util.Stack;
 public class Main extends Application {
 
     private static final Stack calculationStack = new Stack();
+    //private static final ArrayList<String> calculationArray = new ArrayList<>();
     static final ArrayList<String> operators = new ArrayList<>();
     static final ArrayList<Integer> numbers = new ArrayList<>();
     static final TextField screen = new TextField();
