@@ -9,16 +9,32 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import java.util.ArrayList;
-import java.util.Stack;
 
 /* Implement an Array as a Queue */
 
 public class Main extends Application {
 
-    private static final Stack calculationStack = new Stack();
-    //private static final ArrayList<String> calculationArray = new ArrayList<>();
+    /* Declaring String Literals */
+    private static final String DIVIDE = "÷";
+    private static final String MULTIPLY = "x";
+    private static final String ADD = "+";
+    private static final String SUBTRACT = "-";
+    private static final String EQUALS = "=";
+    private static final String NEGATIVE = "+/-";
+    private static final String PERCENT = "%";
+    private static final String CLEAR = "AC";
+    private static final String ONE = "1";
+    private static final String TWO = "2";
+    private static final String THREE = "3";
+    private static final String FOUR = "4";
+    private static final String FIVE = "5";
+    private static final String SIX = "6";
+    private static final String SEVEN = "7";
+    private static final String EIGHT = "8";
+    private static final String NINE = "9";
+    private static final String ZERO = "0";
+    private static final ArrayList<String> calculationArray = new ArrayList<>();
     static final ArrayList<String> operators = new ArrayList<>();
-    static final ArrayList<Integer> numbers = new ArrayList<>();
     static final TextField screen = new TextField();
 
     @Override
@@ -32,10 +48,10 @@ public class Main extends Application {
     }
 
     private void assignOperators() {
-        operators.add("+");
-        operators.add("-");
-        operators.add("÷");
-        operators.add("x");
+        operators.add(ADD);
+        operators.add(SUBTRACT);
+        operators.add(DIVIDE);
+        operators.add(MULTIPLY);
     }
 
     private void initalizeScreen(){
@@ -53,144 +69,125 @@ public class Main extends Application {
     }
 
     private static void addButtons(GridPane grid) {
-        grid.add(createButton("1"), 0, 4);
-        grid.add(createButton("2"), 1, 4);
-        grid.add(createButton("3"), 2, 4);
-        grid.add(createButton("+"), 3, 4);
-        grid.add(createButton("4"), 0, 3);
-        grid.add(createButton("5"), 1, 3);
-        grid.add(createButton("6"), 2, 3);
-        grid.add(createButton("-"), 3, 3);
-        grid.add(createButton("7"), 0, 2);
-        grid.add(createButton("8"), 1, 2);
-        grid.add(createButton("9"), 2, 2);
-        grid.add(createButton("x"), 3, 2);
-        grid.add(createButton("AC"), 0, 1);
-        grid.add(createButton("+/-"), 1, 1);
-        grid.add(createButton("%"), 2, 1);
-        grid.add(createButton("÷"), 3, 1);
+        grid.add(createButton(ONE), 0, 4);
+        grid.add(createButton(TWO), 1, 4);
+        grid.add(createButton(THREE), 2, 4);
+        grid.add(createButton(ADD), 3, 4);
+        grid.add(createButton(FOUR), 0, 3);
+        grid.add(createButton(FIVE), 1, 3);
+        grid.add(createButton(SIX), 2, 3);
+        grid.add(createButton(SUBTRACT), 3, 3);
+        grid.add(createButton(SEVEN), 0, 2);
+        grid.add(createButton(EIGHT), 1, 2);
+        grid.add(createButton(NINE), 2, 2);
+        grid.add(createButton(MULTIPLY), 3, 2);
+        grid.add(createButton(CLEAR), 0, 1);
+        grid.add(createButton(NEGATIVE), 1, 1);
+        grid.add(createButton(PERCENT), 2, 1);
+        grid.add(createButton(DIVIDE), 3, 1);
         grid.add(screen, 0, 0);
     }
 
-    private static void addNumberEvent(Button number) {
+    private static void setOnNumberPressed(Button number) {
         number.setOnAction(e -> {
-            if (calculationStack.isEmpty()) {
-                calculationStack.push(number.getText());
+            if (calculationArray.isEmpty()) {
+                calculationArray.add(number.getText());
                 screen.setText(number.getText());
             /* Make your calculationStack a Stack<String>, as opposed to a Stack, so you
              * don't have to call .toString() on the elements */
-            } else if (operators.contains(calculationStack.peek().toString())) {
+            } else if (operators.contains(calculationArray.get(calculationArray.size() - 1))) {
                 System.out.println("PUSHING");
-                calculationStack.push(number.getText());
+                calculationArray.add(number.getText());
                 screen.setText(number.getText());
             } else {
-                System.out.println("Peek: " + calculationStack.peek().toString());
-                String newValue = calculationStack.peek().toString();
+                System.out.println("Peek: " + calculationArray.get(calculationArray.size() - 1));
+                String newValue = calculationArray.get(calculationArray.size() - 1);
                 System.out.println("Adding this on: " + number.getText());
                 newValue += number.getText();
-                calculationStack.pop();
-                calculationStack.push(newValue);
+                calculationArray.set((calculationArray.size() - 1), newValue);
                 screen.setText(newValue);
                 System.out.println("New Value: " + newValue);
             }
         });
     }
 
-    private static void addArithmeticEvent(Button arithmetic) {
+    private static void setOnArithmeticPressed(Button arithmetic) {
         arithmetic.setOnAction(e -> {
-            if (!calculationStack.isEmpty()) {
+            if (!calculationArray.isEmpty()) {
                 System.out.println(arithmetic.getText());
-                calculationStack.push(arithmetic.getText());
+                calculationArray.add(arithmetic.getText());
             } else {
                 System.out.println("ERR NULL!");
             }
         });
     }
 
-    private static void addEquals(Button equals) {
+    private static void setOnEqualsPressed(Button equals) {
         equals.setOnAction((e -> {
+            double valueOne = 0;
+            double valueTwo = 0;
             String operation = "";
-            if (!calculationStack.isEmpty()) {
-                while (!calculationStack.isEmpty()) {
-                    if(operators.contains(calculationStack.peek().toString())){
-                        operation = calculationStack.pop().toString();
-                    }else{
-                        numbers.add(Integer.parseInt(calculationStack.pop().toString()));
+            if (!calculationArray.isEmpty() && calculationArray.size() >= 3) {
+                while(calculationArray.size() > 1) {
+                    valueOne = Double.parseDouble(calculationArray.get(0));
+                    operation = calculationArray.get(1);
+                    valueTwo = Double.parseDouble(calculationArray.get(2));
+                    System.out.println("ValueOne: " + valueOne + " ValueTwo: " + valueTwo);
+                    if(operation.equals(ADD)){
+                        calculationArray.set(0, Double.toString(valueOne + valueTwo));
+                        removeIndexes();
+                        screen.setText(Double.toString(valueOne + valueTwo));
+                    }
+                    if(operation.equals((SUBTRACT))){
+                        calculationArray.set(0, Double.toString(valueOne - valueTwo));
+                        removeIndexes();
+                        screen.setText(Double.toString(valueOne - valueTwo));
+                    }
+                    if(operation.equals((MULTIPLY))){
+                        calculationArray.set(0, Double.toString(valueOne * valueTwo));
+                        removeIndexes();
+                        screen.setText(Double.toString(valueOne * valueTwo));
+                    }
+                    if(operation.equals((DIVIDE))){
+                        calculationArray.set(0, Double.toString(valueOne / valueTwo));
+                        removeIndexes();
+                        screen.setText(Double.toString(valueOne / valueTwo));
                     }
                 }
             } else {
                 screen.setText("ERR NULL!");
             }
-            System.out.println("ValueOne: " + numbers.get(1) + " ValueTwo: " + numbers.get(0));
-            int valueOne = numbers.get(1);
-            int valueTwo = numbers.get(0);
-            /* Usually it's good practice to make all string literals into static globals. E.g you would declare
-            *  private static final String DIVIDE = "÷"; and replace any use of "÷" with DIVIDE.
-            *  #1 it helps prevent typos, and #2 it makes it easier to change later, like if you wanted to replace
-            *  the division symbol with "/". Yes, I think you should do it for the numbers too. */
-            if(operation.equals("+")){
-                calculationStack.push(valueOne + valueTwo);
-                screen.setText(Integer.toString(valueOne + valueTwo));
-                numbers.clear();
-            }
-            if(operation.equals(("-"))){
-                calculationStack.push(valueOne - valueTwo);
-                screen.setText(Integer.toString(valueOne - valueTwo));
-                numbers.clear();
-            }
-            if(operation.equals(("x"))){
-                calculationStack.push(valueOne * valueTwo);
-                screen.setText(Integer.toString(valueOne * valueTwo));
-                numbers.clear();
-            }
-            if(operation.equals(("÷"))){
-                calculationStack.push(valueOne / valueTwo);
-                screen.setText(Integer.toString( valueOne / valueTwo));
-                numbers.clear();
-            }
         }));
     }
 
-    // This function isn't used anymore: delete it
-    private static double makeDouble(int value){
-        double d = value;
-        return d;
-    }
-
-    private static void addClear(Button clear){
+    private static void setOnClearPressed(Button clear){
         clear.setOnAction((e -> {
-            while(!calculationStack.isEmpty()){
-                calculationStack.pop();
-                screen.setText("");
-                numbers.clear();
+            if(!calculationArray.isEmpty()){
+                calculationArray.clear();
             }
-            // nitpick: instead of .equals(""), use .isEmpty()
-            if(!screen.getText().equals("")){
-                screen.setText("");
-                numbers.clear();
-            }
+            screen.setText("");
         }));
     }
 
-    private static void addNegative(Button negative){
+    private static void setOnNegativePressed(Button negative){
         negative.setOnAction((e -> {
-            if(!calculationStack.isEmpty()) {
-                int value = Integer.parseInt(calculationStack.pop().toString());
+            if(!calculationArray.isEmpty()) {
+                double value = Double.parseDouble(calculationArray.get(calculationArray.size() - 1));
                 value *= -1;
-                calculationStack.push(Integer.toString(value));
-                screen.setText(Integer.toString(value));
+                calculationArray.add(Double.toString(value));
+                screen.setText(Double.toString(value));
             }else{
                 screen.setText("ERR NULL!");
             }
         }));
     }
 
-    private static void addPercentage(Button negative){
+    private static void setOnPercentPressed(Button negative){
         negative.setOnAction((e -> {
-            if(!calculationStack.isEmpty()) {
-                double value = Double.parseDouble(calculationStack.pop().toString());
+            if(!calculationArray.isEmpty()) {
+                double value = Double.parseDouble(calculationArray.get(calculationArray.size() - 1));
                 value /= 100;
-                calculationStack.push(Double.toString(value));
+                calculationArray.set((calculationArray.size() - 1), Double.toString(value));
                 screen.setText(Double.toString(value));
             }else{
                 screen.setText("ERR NULL!");
@@ -200,26 +197,24 @@ public class Main extends Application {
 
     private static Button createButton(String value) {
         Button calculatorButton = new Button(value);
-        if(value.equals("0")){
+        if(value.equals(ZERO)){
             calculatorButton.setMinWidth(115);
         }else {
             calculatorButton.setMinWidth(57.5);
         }
         calculatorButton.setMinHeight(54);
-        /* nitpick: I think the naming of these functions is a little confusing, since "add" could also mean doing
-         * math. I'd prefer something like setOnEqualsPressed, setOnOperatorPressed, setOnNumberPressed, etc. */
-        if (value.equals("=")) {
-            addEquals(calculatorButton);
+        if (value.equals(EQUALS)) {
+            setOnEqualsPressed(calculatorButton);
         }else if (operators.contains(value)) {
-            addArithmeticEvent(calculatorButton);
-        }else if(value.equals("AC")) {
-            addClear(calculatorButton);
-        }else if(value.equals("+/-")){
-            addNegative(calculatorButton);
-        }else if(value.equals("%")){
-            addPercentage(calculatorButton);
+            setOnArithmeticPressed(calculatorButton);
+        }else if(value.equals(CLEAR)) {
+            setOnClearPressed(calculatorButton);
+        }else if(value.equals(NEGATIVE)){
+            setOnNegativePressed(calculatorButton);
+        }else if(value.equals(PERCENT)){
+            setOnPercentPressed(calculatorButton);
         }else {
-            addNumberEvent(calculatorButton);
+            setOnNumberPressed(calculatorButton);
         }
         return calculatorButton;
     }
@@ -228,8 +223,21 @@ public class Main extends Application {
     private static HBox createLastRow(){
         HBox lastRow = new HBox();
         lastRow.getChildren().addAll(createButton("0"),
-                createButton("."),createButton("="));
+                createButton("."),createButton(EQUALS));
         return lastRow;
+    }
+
+    private static void removeIndexes(){
+        System.out.println("BEFORE");
+        for(int i = 0; i < calculationArray.size(); i++){
+            System.out.println("INDEX " + i + ": " + calculationArray.get(i));
+        }
+        calculationArray.remove(1);
+        calculationArray.remove(1);
+        System.out.println("AFTER");
+        for(int i = 0; i < calculationArray.size(); i++){
+            System.out.println("INDEX " + i + ": " + calculationArray.get(i));
+        }
     }
 
 
