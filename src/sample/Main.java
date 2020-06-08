@@ -77,6 +77,8 @@ public class Main extends Application {
             if (calculationStack.isEmpty()) {
                 calculationStack.push(number.getText());
                 screen.setText(number.getText());
+            /* Make your calculationStack a Stack<String>, as opposed to a Stack, so you
+             * don't have to call .toString() on the elements */
             } else if (operators.contains(calculationStack.peek().toString())) {
                 System.out.println("PUSHING");
                 calculationStack.push(number.getText());
@@ -122,6 +124,10 @@ public class Main extends Application {
             System.out.println("ValueOne: " + numbers.get(1) + " ValueTwo: " + numbers.get(0));
             int valueOne = numbers.get(1);
             int valueTwo = numbers.get(0);
+            /* Usually it's good practice to make all string literals into static globals. E.g you would declare
+            *  private static final String DIVIDE = "÷"; and replace any use of "÷" with DIVIDE.
+            *  #1 it helps prevent typos, and #2 it makes it easier to change later, like if you wanted to replace
+            *  the division symbol with "/". Yes, I think you should do it for the numbers too. */
             if(operation.equals("+")){
                 calculationStack.push(valueOne + valueTwo);
                 screen.setText(Integer.toString(valueOne + valueTwo));
@@ -145,6 +151,7 @@ public class Main extends Application {
         }));
     }
 
+    // This function isn't used anymore: delete it
     private static double makeDouble(int value){
         double d = value;
         return d;
@@ -157,6 +164,7 @@ public class Main extends Application {
                 screen.setText("");
                 numbers.clear();
             }
+            // nitpick: instead of .equals(""), use .isEmpty()
             if(!screen.getText().equals("")){
                 screen.setText("");
                 numbers.clear();
@@ -198,6 +206,8 @@ public class Main extends Application {
             calculatorButton.setMinWidth(57.5);
         }
         calculatorButton.setMinHeight(54);
+        /* nitpick: I think the naming of these functions is a little confusing, since "add" could also mean doing
+         * math. I'd prefer something like setOnEqualsPressed, setOnOperatorPressed, setOnNumberPressed, etc. */
         if (value.equals("=")) {
             addEquals(calculatorButton);
         }else if (operators.contains(value)) {
@@ -214,6 +224,7 @@ public class Main extends Application {
         return calculatorButton;
     }
 
+    // Why isn't this part of the grid? I think it would be simpler if it was.
     private static HBox createLastRow(){
         HBox lastRow = new HBox();
         lastRow.getChildren().addAll(createButton("0"),
