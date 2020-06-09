@@ -1,6 +1,7 @@
-package sample;
+package calculator;
 
 import javafx.application.Application;
+import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.TextField;
@@ -33,17 +34,23 @@ public class Main extends Application {
     private static final String EIGHT = "8";
     private static final String NINE = "9";
     private static final String ZERO = "0";
+    private static boolean equalsClicked = false;
     private static final ArrayList<String> calculationArray = new ArrayList<>();
     static final ArrayList<String> operators = new ArrayList<>();
-    static final TextField screen = new TextField();
+    static final TextField mainScreen = new TextField();
+    static final TextField calculationScreen = new TextField();
 
     @Override
     public void start(Stage primaryStage) {
         primaryStage.setTitle("Calculator");
         assignOperators();
-        initalizeScreen();
+        initalizeCalculationScreen();
+        initalizeMainScreen();
         VBox calculator = createCalculator();
-        primaryStage.setScene(new Scene(calculator, 230, 320));
+        Scene scene = new Scene(calculator, 230, 345);
+        calculator.setStyle("-fx-background-color:  rgb(65,64,65);");
+       // scene.getStylesheets().add("css/stylesheet.css");
+        primaryStage.setScene(scene);
         primaryStage.show();
     }
 
@@ -54,17 +61,32 @@ public class Main extends Application {
         operators.add(MULTIPLY);
     }
 
-    private void initalizeScreen(){
-        screen.setMinHeight(50);
-        screen.setDisable(true);
-        screen.setStyle("-fx-opacity: 1;");
+    private void initalizeCalculationScreen(){
+        calculationScreen.setAlignment(Pos.CENTER_RIGHT);
+        calculationScreen.setMinHeight(25);
+        calculationScreen.setDisable(true);
+        calculationScreen.setStyle(
+                "-fx-opacity: 1;\n" + "-fx-background-color:  rgb(65,64,65);\n" +
+                        "-fx-text-fill: rgba(255, 255, 225, 0.3);\n" +
+                        "    -fx-border-width: 0;\n" +"-fx-font-size: 12px;");
+        calculationScreen.setText("");
+    }
+
+    private void initalizeMainScreen(){
+        mainScreen.setAlignment(Pos.CENTER_RIGHT);
+        mainScreen.setMinHeight(50);
+        mainScreen.setDisable(true);
+        mainScreen.setStyle(
+                "-fx-opacity: 1;\n" + "-fx-background-color:  rgb(65,64,65);\n" +
+                        "-fx-border-width: 0;\n" +
+                "-fx-text-fill: rgb(255, 255, 225);\n" + "-fx-font-size: 24px;");
     }
 
     private static VBox createCalculator() {
         GridPane grid = new GridPane();
         addButtons(grid);
         VBox calculator = new VBox();
-        calculator.getChildren().addAll(screen, grid, createLastRow());
+        calculator.getChildren().addAll(calculationScreen,mainScreen, grid, createLastRow());
         return calculator;
     }
 
@@ -85,27 +107,38 @@ public class Main extends Application {
         grid.add(createButton(NEGATIVE), 1, 1);
         grid.add(createButton(PERCENT), 2, 1);
         grid.add(createButton(DIVIDE), 3, 1);
-        grid.add(screen, 0, 0);
+        grid.add(mainScreen, 0, 0);
     }
 
     private static void setOnNumberPressed(Button number) {
         number.setOnAction(e -> {
             if (calculationArray.isEmpty()) {
                 calculationArray.add(number.getText());
-                screen.setText(number.getText());
-            /* Make your calculationStack a Stack<String>, as opposed to a Stack, so you
-             * don't have to call .toString() on the elements */
+                mainScreen.setText(number.getText());
+                calculationScreen.setText(number.getText());
             } else if (operators.contains(calculationArray.get(calculationArray.size() - 1))) {
                 System.out.println("PUSHING");
                 calculationArray.add(number.getText());
-                screen.setText(number.getText());
-            } else {
+                mainScreen.setText(number.getText());
+                String calculationString = calculationScreen.getText();
+                calculationString += (" " + number.getText());
+                calculationScreen.setText(calculationString);
+            } else if(equalsClicked == true) {
+                calculationArray.clear();
+                calculationArray.add(number.getText());
+                mainScreen.setText(number.getText());
+                calculationScreen.setText(number.getText());
+                equalsClicked = false;
+            }else{
                 System.out.println("Peek: " + calculationArray.get(calculationArray.size() - 1));
                 String newValue = calculationArray.get(calculationArray.size() - 1);
                 System.out.println("Adding this on: " + number.getText());
                 newValue += number.getText();
                 calculationArray.set((calculationArray.size() - 1), newValue);
-                screen.setText(newValue);
+                mainScreen.setText(newValue);
+                String calculationString = calculationScreen.getText();
+                calculationString += number.getText();
+                calculationScreen.setText(calculationString);
                 System.out.println("New Value: " + newValue);
             }
         });
@@ -113,9 +146,13 @@ public class Main extends Application {
 
     private static void setOnArithmeticPressed(Button arithmetic) {
         arithmetic.setOnAction(e -> {
+            equalsClicked = false;
             if (!calculationArray.isEmpty()) {
                 System.out.println(arithmetic.getText());
                 calculationArray.add(arithmetic.getText());
+                String calculationString = calculationScreen.getText();
+                calculationString += (" " + arithmetic.getText());
+                calculationScreen.setText(calculationString);
             } else {
                 System.out.println("ERR NULL!");
             }
@@ -136,27 +173,32 @@ public class Main extends Application {
                     if(operation.equals(ADD)){
                         calculationArray.set(0, Double.toString(valueOne + valueTwo));
                         removeIndexes();
-                        screen.setText(Double.toString(valueOne + valueTwo));
+                        mainScreen.setText(Double.toString(valueOne + valueTwo));
+                        equalsClicked = true;
                     }
                     if(operation.equals((SUBTRACT))){
                         calculationArray.set(0, Double.toString(valueOne - valueTwo));
                         removeIndexes();
-                        screen.setText(Double.toString(valueOne - valueTwo));
+                        mainScreen.setText(Double.toString(valueOne - valueTwo));
+                        equalsClicked = true;
                     }
                     if(operation.equals((MULTIPLY))){
                         calculationArray.set(0, Double.toString(valueOne * valueTwo));
                         removeIndexes();
-                        screen.setText(Double.toString(valueOne * valueTwo));
+                        mainScreen.setText(Double.toString(valueOne * valueTwo));
+                        equalsClicked = true;
                     }
                     if(operation.equals((DIVIDE))){
                         calculationArray.set(0, Double.toString(valueOne / valueTwo));
                         removeIndexes();
-                        screen.setText(Double.toString(valueOne / valueTwo));
+                        mainScreen.setText(Double.toString(valueOne / valueTwo));
+                        equalsClicked = true;
                     }
                 }
             } else {
-                screen.setText("ERR NULL!");
+                mainScreen.setText("ERR NULL!");
             }
+            System.out.println(equalsClicked);
         }));
     }
 
@@ -165,7 +207,8 @@ public class Main extends Application {
             if(!calculationArray.isEmpty()){
                 calculationArray.clear();
             }
-            screen.setText("");
+            mainScreen.setText("");
+            calculationScreen.setText("");
         }));
     }
 
@@ -175,9 +218,9 @@ public class Main extends Application {
                 double value = Double.parseDouble(calculationArray.get(calculationArray.size() - 1));
                 value *= -1;
                 calculationArray.add(Double.toString(value));
-                screen.setText(Double.toString(value));
+                mainScreen.setText(Double.toString(value));
             }else{
-                screen.setText("ERR NULL!");
+                mainScreen.setText("ERR NULL!");
             }
         }));
     }
@@ -188,9 +231,9 @@ public class Main extends Application {
                 double value = Double.parseDouble(calculationArray.get(calculationArray.size() - 1));
                 value /= 100;
                 calculationArray.set((calculationArray.size() - 1), Double.toString(value));
-                screen.setText(Double.toString(value));
+                mainScreen.setText(Double.toString(value));
             }else{
-                screen.setText("ERR NULL!");
+                mainScreen.setText("ERR NULL!");
             }
         }));
     }
@@ -198,7 +241,7 @@ public class Main extends Application {
     private static Button createButton(String value) {
         Button calculatorButton = new Button(value);
         if(value.equals(ZERO)){
-            calculatorButton.setMinWidth(115);
+            calculatorButton.setMinWidth(115.5);
         }else {
             calculatorButton.setMinWidth(57.5);
         }
@@ -216,10 +259,14 @@ public class Main extends Application {
         }else {
             setOnNumberPressed(calculatorButton);
         }
+        calculatorButton.setStyle("" +
+                "    -fx-text-fill: rgb(255, 255, 255);\n" +
+                "    -fx-border-color: rgb(255, 255, 255);\n" +
+                "    -fx-border-width: 0.25;\n" +
+                "    -fx-background-color: #5ac8fa;");
         return calculatorButton;
     }
 
-    // Why isn't this part of the grid? I think it would be simpler if it was.
     private static HBox createLastRow(){
         HBox lastRow = new HBox();
         lastRow.getChildren().addAll(createButton("0"),
