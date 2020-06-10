@@ -24,6 +24,10 @@ public class Main extends Application {
     private static final String NEGATIVE = "+/-";
     private static final String PERCENT = "%";
     private static final String CLEAR = "AC";
+    private static final String EXPONENT = "xⁿ";
+    private static final String LEFTPARAN = "(";
+    private static final String RIGHTPARAN = ")";
+    private static final String BACK = "⬅";
     private static final String ONE = "1";
     private static final String TWO = "2";
     private static final String THREE = "3";
@@ -34,7 +38,7 @@ public class Main extends Application {
     private static final String EIGHT = "8";
     private static final String NINE = "9";
     private static final String ZERO = "0";
-    private static double RESULT = 0;
+    private static String RESULT = "";
     private static boolean equalsClicked = false;
     private static final ArrayList<String> calculationArray = new ArrayList<>();
     static final ArrayList<String> operators = new ArrayList<>();
@@ -48,7 +52,7 @@ public class Main extends Application {
         initalizeCalculationScreen();
         initalizeMainScreen();
         VBox calculator = createCalculator();
-        Scene scene = new Scene(calculator, 230, 345);
+        Scene scene = new Scene(calculator, 275, 375);
         calculator.setStyle("-fx-background-color:  rgb(65,64,65);");
        // scene.getStylesheets().add("css/stylesheet.css");
         primaryStage.setScene(scene);
@@ -60,6 +64,9 @@ public class Main extends Application {
         operators.add(SUBTRACT);
         operators.add(DIVIDE);
         operators.add(MULTIPLY);
+        operators.add(EXPONENT);
+        operators.add(LEFTPARAN);
+        operators.add(RIGHTPARAN);
     }
 
     private void initalizeCalculationScreen(){
@@ -92,22 +99,26 @@ public class Main extends Application {
     }
 
     private static void addButtons(GridPane grid) {
-        grid.add(createButton(ONE), 0, 4);
-        grid.add(createButton(TWO), 1, 4);
-        grid.add(createButton(THREE), 2, 4);
-        grid.add(createButton(ADD), 3, 4);
-        grid.add(createButton(FOUR), 0, 3);
-        grid.add(createButton(FIVE), 1, 3);
-        grid.add(createButton(SIX), 2, 3);
-        grid.add(createButton(SUBTRACT), 3, 3);
-        grid.add(createButton(SEVEN), 0, 2);
-        grid.add(createButton(EIGHT), 1, 2);
-        grid.add(createButton(NINE), 2, 2);
-        grid.add(createButton(MULTIPLY), 3, 2);
+        grid.add(createButton(ONE), 0, 5);
+        grid.add(createButton(TWO), 1, 5);
+        grid.add(createButton(THREE), 2, 5);
+        grid.add(createButton(ADD), 3, 5);
+        grid.add(createButton(FOUR), 0, 4);
+        grid.add(createButton(FIVE), 1, 4);
+        grid.add(createButton(SIX), 2, 4);
+        grid.add(createButton(SUBTRACT), 3, 4);
+        grid.add(createButton(SEVEN), 0, 3);
+        grid.add(createButton(EIGHT), 1, 3);
+        grid.add(createButton(NINE), 2, 3);
+        grid.add(createButton(MULTIPLY), 3, 3);
+        grid.add(createButton(LEFTPARAN), 0, 2);
+        grid.add(createButton(RIGHTPARAN), 1, 2);
+        grid.add(createButton(EXPONENT), 2, 2);
+        grid.add(createButton(DIVIDE), 3, 2);
         grid.add(createButton(CLEAR), 0, 1);
-        grid.add(createButton(NEGATIVE), 1, 1);
+        grid.add(createButton(NEGATIVE), 3, 1);
         grid.add(createButton(PERCENT), 2, 1);
-        grid.add(createButton(DIVIDE), 3, 1);
+        grid.add(createButton(BACK), 1, 1);
         grid.add(mainScreen, 0, 0);
     }
 
@@ -167,7 +178,7 @@ public class Main extends Application {
                     if(calculationArray.contains(MULTIPLY)){
                         while (calculationArray.contains(MULTIPLY)){
                             int index = calculationArray.indexOf(MULTIPLY);
-                            RESULT = (Double.parseDouble(calculationArray.get(index - 1)) *
+                            RESULT = Double.toString(Double.parseDouble(calculationArray.get(index - 1)) *
                                     Double.parseDouble(calculationArray.get(index + 1)));
                             removeIndexes(index);
                         }
@@ -175,7 +186,13 @@ public class Main extends Application {
                     if(calculationArray.contains(DIVIDE)){
                         while (calculationArray.contains(DIVIDE)){
                             int index = calculationArray.indexOf(DIVIDE);
-                            RESULT = (Double.parseDouble(calculationArray.get(index - 1)) /
+                            if(calculationArray.get(index + 1).equals("0")){
+                                RESULT = "undefined";
+                                calculationScreen.setText("ERR!");
+                                calculationArray.clear();
+                                break;
+                            }
+                            RESULT = Double.toString(Double.parseDouble(calculationArray.get(index - 1)) /
                                     Double.parseDouble(calculationArray.get(index + 1)));
                             removeIndexes(index);
                         }
@@ -183,7 +200,7 @@ public class Main extends Application {
                     if(calculationArray.contains(ADD)){
                         while (calculationArray.contains(ADD)){
                             int index = calculationArray.indexOf(ADD);
-                            RESULT = (Double.parseDouble(calculationArray.get(index - 1)) +
+                            RESULT = Double.toString(Double.parseDouble(calculationArray.get(index - 1)) +
                                     Double.parseDouble(calculationArray.get(index + 1)));
                             removeIndexes(index);
                         }
@@ -191,7 +208,7 @@ public class Main extends Application {
                     if(calculationArray.contains(SUBTRACT)){
                         while (calculationArray.contains(SUBTRACT)){
                             int index = calculationArray.indexOf(SUBTRACT);
-                            RESULT = (Double.parseDouble(calculationArray.get(index - 1)) -
+                            RESULT = Double.toString(Double.parseDouble(calculationArray.get(index - 1)) -
                                     Double.parseDouble(calculationArray.get(index + 1)));
                             removeIndexes(index);
                         }
@@ -200,8 +217,8 @@ public class Main extends Application {
             } else {
                 mainScreen.setText("ERR NULL!");
             }
-            mainScreen.setText(Double.toString(RESULT));
-            RESULT = 0;
+            mainScreen.setText(RESULT);
+            RESULT = "";
             equalsClicked = true;
         }));
     }
@@ -245,11 +262,11 @@ public class Main extends Application {
     private static Button createButton(String value) {
         Button calculatorButton = new Button(value);
         if(value.equals(ZERO)){
-            calculatorButton.setMinWidth(115.5);
+            calculatorButton.setMinWidth(137.5);
         }else {
-            calculatorButton.setMinWidth(57.5);
+            calculatorButton.setMinWidth(68.75);
         }
-        calculatorButton.setMinHeight(54);
+        calculatorButton.setMinHeight(50);
         if (value.equals(EQUALS)) {
             setOnEqualsPressed(calculatorButton);
         }else if (operators.contains(value)) {
@@ -286,7 +303,7 @@ public class Main extends Application {
         calculationArray.remove(index);
         calculationArray.remove(index);
         if(index >= 1){
-            calculationArray.set((index - 1), Double.toString(RESULT));
+            calculationArray.set((index - 1), RESULT);
             System.out.println("RESULT: " + RESULT);
         }
         System.out.println("AFTER");
