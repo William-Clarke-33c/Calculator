@@ -24,7 +24,7 @@ public class Main extends Application {
     private static final String NEGATIVE = "+/-";
     private static final String PERCENT = "%";
     private static final String CLEAR = "AC";
-    private static final String EXPONENT = "xⁿ";
+    private static final String EXPONENT = "^";
     private static final String LEFTPARAN = "(";
     private static final String RIGHTPARAN = ")";
     private static final String BACK = "⬅";
@@ -175,6 +175,15 @@ public class Main extends Application {
         equals.setOnAction((e -> {
             if (!calculationArray.isEmpty() && calculationArray.size() >= 3) {
                 while(calculationArray.size() > 1) {
+                    if(calculationArray.contains(EXPONENT)){
+                        while (calculationArray.contains(EXPONENT)){
+                            int index = calculationArray.indexOf(EXPONENT);
+                            RESULT = Double.toString(
+                                    Math.pow(Double.parseDouble(calculationArray.get(index - 1)) ,
+                                            Double.parseDouble(calculationArray.get(index + 1))));
+                            removeIndexes(index);
+                        }
+                    }
                     if(calculationArray.contains(MULTIPLY)){
                         while (calculationArray.contains(MULTIPLY)){
                             int index = calculationArray.indexOf(MULTIPLY);
