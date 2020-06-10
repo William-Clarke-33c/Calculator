@@ -34,6 +34,7 @@ public class Main extends Application {
     private static final String EIGHT = "8";
     private static final String NINE = "9";
     private static final String ZERO = "0";
+    private static double RESULT = 0;
     private static boolean equalsClicked = false;
     private static final ArrayList<String> calculationArray = new ArrayList<>();
     static final ArrayList<String> operators = new ArrayList<>();
@@ -161,44 +162,47 @@ public class Main extends Application {
 
     private static void setOnEqualsPressed(Button equals) {
         equals.setOnAction((e -> {
-            double valueOne = 0;
-            double valueTwo = 0;
-            String operation = "";
             if (!calculationArray.isEmpty() && calculationArray.size() >= 3) {
                 while(calculationArray.size() > 1) {
-                    valueOne = Double.parseDouble(calculationArray.get(0));
-                    operation = calculationArray.get(1);
-                    valueTwo = Double.parseDouble(calculationArray.get(2));
-                    System.out.println("ValueOne: " + valueOne + " ValueTwo: " + valueTwo);
-                    if(operation.equals(ADD)){
-                        calculationArray.set(0, Double.toString(valueOne + valueTwo));
-                        removeIndexes();
-                        mainScreen.setText(Double.toString(valueOne + valueTwo));
-                        equalsClicked = true;
+                    if(calculationArray.contains(MULTIPLY)){
+                        while (calculationArray.contains(MULTIPLY)){
+                            int index = calculationArray.indexOf(MULTIPLY);
+                            RESULT = (Double.parseDouble(calculationArray.get(index - 1)) *
+                                    Double.parseDouble(calculationArray.get(index + 1)));
+                            removeIndexes(index);
+                        }
                     }
-                    if(operation.equals((SUBTRACT))){
-                        calculationArray.set(0, Double.toString(valueOne - valueTwo));
-                        removeIndexes();
-                        mainScreen.setText(Double.toString(valueOne - valueTwo));
-                        equalsClicked = true;
+                    if(calculationArray.contains(DIVIDE)){
+                        while (calculationArray.contains(DIVIDE)){
+                            int index = calculationArray.indexOf(DIVIDE);
+                            RESULT = (Double.parseDouble(calculationArray.get(index - 1)) /
+                                    Double.parseDouble(calculationArray.get(index + 1)));
+                            removeIndexes(index);
+                        }
                     }
-                    if(operation.equals((MULTIPLY))){
-                        calculationArray.set(0, Double.toString(valueOne * valueTwo));
-                        removeIndexes();
-                        mainScreen.setText(Double.toString(valueOne * valueTwo));
-                        equalsClicked = true;
+                    if(calculationArray.contains(ADD)){
+                        while (calculationArray.contains(ADD)){
+                            int index = calculationArray.indexOf(ADD);
+                            RESULT = (Double.parseDouble(calculationArray.get(index - 1)) +
+                                    Double.parseDouble(calculationArray.get(index + 1)));
+                            removeIndexes(index);
+                        }
                     }
-                    if(operation.equals((DIVIDE))){
-                        calculationArray.set(0, Double.toString(valueOne / valueTwo));
-                        removeIndexes();
-                        mainScreen.setText(Double.toString(valueOne / valueTwo));
-                        equalsClicked = true;
+                    if(calculationArray.contains(SUBTRACT)){
+                        while (calculationArray.contains(SUBTRACT)){
+                            int index = calculationArray.indexOf(SUBTRACT);
+                            RESULT = (Double.parseDouble(calculationArray.get(index - 1)) -
+                                    Double.parseDouble(calculationArray.get(index + 1)));
+                            removeIndexes(index);
+                        }
                     }
                 }
             } else {
                 mainScreen.setText("ERR NULL!");
             }
-            System.out.println(equalsClicked);
+            mainScreen.setText(Double.toString(RESULT));
+            RESULT = 0;
+            equalsClicked = true;
         }));
     }
 
@@ -274,13 +278,17 @@ public class Main extends Application {
         return lastRow;
     }
 
-    private static void removeIndexes(){
+    private static void removeIndexes(int index){
         System.out.println("BEFORE");
         for(int i = 0; i < calculationArray.size(); i++){
             System.out.println("INDEX " + i + ": " + calculationArray.get(i));
         }
-        calculationArray.remove(1);
-        calculationArray.remove(1);
+        calculationArray.remove(index);
+        calculationArray.remove(index);
+        if(index >= 1){
+            calculationArray.set((index - 1), Double.toString(RESULT));
+            System.out.println("RESULT: " + RESULT);
+        }
         System.out.println("AFTER");
         for(int i = 0; i < calculationArray.size(); i++){
             System.out.println("INDEX " + i + ": " + calculationArray.get(i));
