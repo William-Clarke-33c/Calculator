@@ -1,5 +1,7 @@
 package calculator;
 
+import com.sun.deploy.util.ArrayUtil;
+import com.sun.tools.javac.util.ArrayUtils;
 import javafx.application.Application;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
@@ -10,6 +12,7 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import java.util.ArrayList;
+import java.util.Arrays;
 
 /* Implement an Array as a Queue */
 
@@ -268,6 +271,41 @@ public class Main extends Application {
         }));
     }
 
+    private static void setOnBackPressed(Button back){
+        back.setOnAction((e -> {
+            if(!calculationArray.isEmpty()) {
+                int index = calculationArray.size() - 1;
+                String calculationString = "";
+                if(operators.contains(calculationArray.get(index))){
+                    calculationArray.remove(index);
+                    char[] calculationChar = calculationScreen.getText().toCharArray();
+                    for(int i = 0; i < calculationChar.length - 2; i++){
+                        calculationString += calculationChar[i];
+                        System.out.println(i + ": " + calculationString);
+                    }
+                    calculationScreen.setText(calculationString);
+                }else{
+                    char[] numberArray = calculationArray.get(index).toCharArray();
+                    calculationArray.remove(index);
+                    String newNumber = "";
+                    for(int i = 0; i < numberArray.length - 1; i++){
+                        newNumber += numberArray[i];
+                    }
+                    calculationArray.add(newNumber);
+                    mainScreen.setText(newNumber);
+                    char[] calculationChar = calculationScreen.getText().toCharArray();
+                    for(int i = 0; i < calculationChar.length - 1; i++){
+                        calculationString += calculationChar[i];
+                        System.out.println(i + ": " + calculationString);
+                    }
+                    calculationScreen.setText(calculationString);
+                }
+            }else{
+                mainScreen.setText("ERR NULL!");
+            }
+        }));
+    }
+
     private static Button createButton(String value) {
         Button calculatorButton = new Button(value);
         if(value.equals(ZERO)){
@@ -286,6 +324,8 @@ public class Main extends Application {
             setOnNegativePressed(calculatorButton);
         }else if(value.equals(PERCENT)){
             setOnPercentPressed(calculatorButton);
+        }else if(value.equals(BACK)){
+            setOnBackPressed(calculatorButton);
         }else {
             setOnNumberPressed(calculatorButton);
         }
