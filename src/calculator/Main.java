@@ -1,7 +1,5 @@
 package calculator;
 
-import com.sun.deploy.util.ArrayUtil;
-import com.sun.tools.javac.util.ArrayUtils;
 import javafx.application.Application;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
@@ -12,7 +10,6 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import java.util.ArrayList;
-import java.util.Arrays;
 
 /* Implement an Array as a Queue */
 
@@ -43,6 +40,7 @@ public class Main extends Application {
     private static final String ZERO = "0";
     private static String RESULT = "";
     private static boolean equalsClicked = false;
+    private static boolean firstNumber = true;
     private static final ArrayList<String> calculationArray = new ArrayList<>();
     static final ArrayList<String> operators = new ArrayList<>();
     static final TextField mainScreen = new TextField();
@@ -51,6 +49,7 @@ public class Main extends Application {
     @Override
     public void start(Stage primaryStage) {
         primaryStage.setTitle("Calculator");
+        primaryStage.setResizable(false);
         assignOperators();
         initalizeCalculationScreen();
         initalizeMainScreen();
@@ -279,17 +278,20 @@ public class Main extends Application {
                 if(operators.contains(calculationArray.get(index))){
                     calculationArray.remove(index);
                     char[] calculationChar = calculationScreen.getText().toCharArray();
-                    for(int i = 0; i < calculationChar.length - 2; i++){
+                    System.out.println("size " + calculationChar.length );
+                    for(int i = 0; i < calculationChar.length - 3; i++){
                         calculationString += calculationChar[i];
-                        System.out.println(i + ": " + calculationString);
+                        System.out.println(i + ": " + calculationChar[i]);
                     }
                     calculationScreen.setText(calculationString);
                 }else{
                     char[] numberArray = calculationArray.get(index).toCharArray();
                     calculationArray.remove(index);
                     String newNumber = "";
+                    System.out.println("size " + numberArray.length );
                     for(int i = 0; i < numberArray.length - 1; i++){
                         newNumber += numberArray[i];
+                        System.out.println(i + ": " + numberArray[i]);
                     }
                     calculationArray.add(newNumber);
                     mainScreen.setText(newNumber);
