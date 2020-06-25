@@ -175,8 +175,10 @@ public class Main extends Application {
 
     private static void setOnEqualsPressed(Button equals) {
         equals.setOnAction((e -> {
+            // replace `calculationArray.size() >= 3` with a function that explains what it represents
             if (!calculationArray.isEmpty() && calculationArray.size() >= 3) {
                 while(calculationArray.size() > 1) {
+                    // None of the following 5 if-statements are necessary. Just the whiles should be fine
                     if(calculationArray.contains(EXPONENT)){
                         while (calculationArray.contains(EXPONENT)){
                             int index = calculationArray.indexOf(EXPONENT);
@@ -273,16 +275,24 @@ public class Main extends Application {
     private static void setOnBackPressed(Button back){
         back.setOnAction((e -> {
             if(!calculationArray.isEmpty()) {
+                // nitpick: rename `index` to `lastIndex`, or something that indicates it's a special index
                 int index = calculationArray.size() - 1;
                 String calculationString = "";
                 if(operators.contains(calculationArray.get(index))){
                     calculationArray.remove(index);
+
+                    // Basically the same as the block below, move this to a function
+                    /** Build this string based on what's in calculationArray, not based
+                     *  on what's already being displayed. It looks like you basically want
+                     *  to "join" each of the calculation array elements with a space.
+                     */
                     char[] calculationChar = calculationScreen.getText().toCharArray();
                     System.out.println("size " + calculationChar.length );
                     for(int i = 0; i < calculationChar.length - 3; i++){
                         calculationString += calculationChar[i];
                         System.out.println(i + ": " + calculationChar[i]);
                     }
+
                     calculationScreen.setText(calculationString);
                 }else{
                     char[] numberArray = calculationArray.get(index).toCharArray();
@@ -295,11 +305,14 @@ public class Main extends Application {
                     }
                     calculationArray.add(newNumber);
                     mainScreen.setText(newNumber);
+
+                    // Basically the same as the block above, move this to a function
                     char[] calculationChar = calculationScreen.getText().toCharArray();
                     for(int i = 0; i < calculationChar.length - 1; i++){
                         calculationString += calculationChar[i];
                         System.out.println(i + ": " + calculationString);
                     }
+
                     calculationScreen.setText(calculationString);
                 }
             }else{
@@ -346,11 +359,15 @@ public class Main extends Application {
         return lastRow;
     }
 
+    // Rename this to something like updateCalculationWithResult, and rename index
+    // to something like operatorIndex
     private static void removeIndexes(int index){
         System.out.println("BEFORE");
         for(int i = 0; i < calculationArray.size(); i++){
             System.out.println("INDEX " + i + ": " + calculationArray.get(i));
         }
+        // nitpick: I think you can refactor this to get rid of the if statement. Do
+        // three removes, and then add RESULT
         calculationArray.remove(index);
         calculationArray.remove(index);
         if(index >= 1){
