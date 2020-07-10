@@ -173,30 +173,33 @@ public class Main extends Application {
         });
     }
 
+//search for deepest left paran and stop when you see first right, do evaluation between those indexes
+    private static void checkForParanthesis(ArrayList<String> expression){
+        int currentIndex = 0;
+        for(int i = 0; i < expression.size(); i++){
+            if(expression.get(i).equals("(")){
+                currentIndex = i;
+            }
+        }
+
+    }
     private static void setOnEqualsPressed(Button equals) {
         equals.setOnAction((e -> {
-            // replace `calculationArray.size() >= 3` with a function that explains what it represents
-            if (!calculationArray.isEmpty() && calculationArray.size() >= 3) {
+            if (isCalculationArrayFilled()) {
                 while(calculationArray.size() > 1) {
-                    // None of the following 5 if-statements are necessary. Just the whiles should be fine
-                    if(calculationArray.contains(EXPONENT)){
                         while (calculationArray.contains(EXPONENT)){
                             int index = calculationArray.indexOf(EXPONENT);
                             RESULT = Double.toString(
                                     Math.pow(Double.parseDouble(calculationArray.get(index - 1)) ,
                                             Double.parseDouble(calculationArray.get(index + 1))));
-                            removeIndexes(index);
+                            updateCalculationWithResult(index);
                         }
-                    }
-                    if(calculationArray.contains(MULTIPLY)){
                         while (calculationArray.contains(MULTIPLY)){
                             int index = calculationArray.indexOf(MULTIPLY);
                             RESULT = Double.toString(Double.parseDouble(calculationArray.get(index - 1)) *
                                     Double.parseDouble(calculationArray.get(index + 1)));
-                            removeIndexes(index);
+                            updateCalculationWithResult(index);
                         }
-                    }
-                    if(calculationArray.contains(DIVIDE)){
                         while (calculationArray.contains(DIVIDE)){
                             int index = calculationArray.indexOf(DIVIDE);
                             if(calculationArray.get(index + 1).equals("0")){
@@ -207,25 +210,20 @@ public class Main extends Application {
                             }
                             RESULT = Double.toString(Double.parseDouble(calculationArray.get(index - 1)) /
                                     Double.parseDouble(calculationArray.get(index + 1)));
-                            removeIndexes(index);
+                            updateCalculationWithResult(index);
                         }
-                    }
-                    if(calculationArray.contains(ADD)){
-                        while (calculationArray.contains(ADD)){
+                        while (calculationArray.contains(ADD)) {
                             int index = calculationArray.indexOf(ADD);
                             RESULT = Double.toString(Double.parseDouble(calculationArray.get(index - 1)) +
                                     Double.parseDouble(calculationArray.get(index + 1)));
-                            removeIndexes(index);
+                            updateCalculationWithResult(index);
                         }
-                    }
-                    if(calculationArray.contains(SUBTRACT)){
                         while (calculationArray.contains(SUBTRACT)){
                             int index = calculationArray.indexOf(SUBTRACT);
                             RESULT = Double.toString(Double.parseDouble(calculationArray.get(index - 1)) -
                                     Double.parseDouble(calculationArray.get(index + 1)));
-                            removeIndexes(index);
+                            updateCalculationWithResult(index);
                         }
-                    }
                 }
             } else {
                 mainScreen.setText("ERR NULL!");
@@ -236,13 +234,17 @@ public class Main extends Application {
         }));
     }
 
+    private static boolean isCalculationArrayFilled() {
+        return !calculationArray.isEmpty() && calculationArray.size() >= 3;
+    }
+
     private static void setOnClearPressed(Button clear){
         clear.setOnAction((e -> {
             if(!calculationArray.isEmpty()){
                 calculationArray.clear();
             }
-            mainScreen.setText("");
-            calculationScreen.setText("");
+            mainScreen.setText("0");
+            calculationScreen.setText("0");
         }));
     }
 
@@ -275,45 +277,12 @@ public class Main extends Application {
     private static void setOnBackPressed(Button back){
         back.setOnAction((e -> {
             if(!calculationArray.isEmpty()) {
-                // nitpick: rename `index` to `lastIndex`, or something that indicates it's a special index
-                int index = calculationArray.size() - 1;
+                int lastIndex = calculationArray.size() - 1;
                 String calculationString = "";
-                if(operators.contains(calculationArray.get(index))){
-                    calculationArray.remove(index);
-
-                    // Basically the same as the block below, move this to a function
-                    /** Build this string based on what's in calculationArray, not based
-                     *  on what's already being displayed. It looks like you basically want
-                     *  to "join" each of the calculation array elements with a space.
-                     */
-                    char[] calculationChar = calculationScreen.getText().toCharArray();
-                    System.out.println("size " + calculationChar.length );
-                    for(int i = 0; i < calculationChar.length - 3; i++){
-                        calculationString += calculationChar[i];
-                        System.out.println(i + ": " + calculationChar[i]);
-                    }
-
-                    calculationScreen.setText(calculationString);
-                }else{
-                    char[] numberArray = calculationArray.get(index).toCharArray();
-                    calculationArray.remove(index);
-                    String newNumber = "";
-                    System.out.println("size " + numberArray.length );
-                    for(int i = 0; i < numberArray.length - 1; i++){
-                        newNumber += numberArray[i];
-                        System.out.println(i + ": " + numberArray[i]);
-                    }
-                    calculationArray.add(newNumber);
-                    mainScreen.setText(newNumber);
-
-                    // Basically the same as the block above, move this to a function
-                    char[] calculationChar = calculationScreen.getText().toCharArray();
-                    for(int i = 0; i < calculationChar.length - 1; i++){
-                        calculationString += calculationChar[i];
-                        System.out.println(i + ": " + calculationString);
-                    }
-
-                    calculationScreen.setText(calculationString);
+                calculationArray.remove(lastIndex);
+                calculationScreen.setText(String.join(" ", calculationArray));
+                if(calculationArray.size() == 0){
+                    mainScreen.setText("0");
                 }
             }else{
                 mainScreen.setText("ERR NULL!");
@@ -359,19 +328,15 @@ public class Main extends Application {
         return lastRow;
     }
 
-    // Rename this to something like updateCalculationWithResult, and rename index
-    // to something like operatorIndex
-    private static void removeIndexes(int index){
+    private static void updateCalculationWithResult(int operatorIndex){
         System.out.println("BEFORE");
         for(int i = 0; i < calculationArray.size(); i++){
             System.out.println("INDEX " + i + ": " + calculationArray.get(i));
         }
-        // nitpick: I think you can refactor this to get rid of the if statement. Do
-        // three removes, and then add RESULT
-        calculationArray.remove(index);
-        calculationArray.remove(index);
-        if(index >= 1){
-            calculationArray.set((index - 1), RESULT);
+        calculationArray.remove(operatorIndex);
+        calculationArray.remove(operatorIndex);
+        if(operatorIndex >= 1){
+            calculationArray.set((operatorIndex - 1), RESULT);
             System.out.println("RESULT: " + RESULT);
         }
         System.out.println("AFTER");
