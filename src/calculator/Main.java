@@ -40,9 +40,8 @@ public class Main extends Application {
     private static final String ZERO = "0";
     private static String RESULT = "";
     private static boolean equalsClicked = false;
-    private static boolean firstNumber = true;
     private static final ArrayList<String> calculationArray = new ArrayList<>();
-    static final ArrayList<String> operators = new ArrayList<>();
+    private static final ArrayList<String> operators = new ArrayList<>();
     static final TextField mainScreen = new TextField();
     static final TextField calculationScreen = new TextField();
 
@@ -161,70 +160,108 @@ public class Main extends Application {
     private static void setOnArithmeticPressed(Button arithmetic) {
         arithmetic.setOnAction(e -> {
             equalsClicked = false;
-            if (!calculationArray.isEmpty()) {
+            if (!calculationArray.isEmpty() || arithmetic.getText().equals("(") ||
+                    arithmetic.getText().equals(")")) {
                 System.out.println(arithmetic.getText());
                 calculationArray.add(arithmetic.getText());
                 String calculationString = calculationScreen.getText();
                 calculationString += (" " + arithmetic.getText());
                 calculationScreen.setText(calculationString);
             } else {
-                System.out.println("ERR NULL!");
+                mainScreen.setText("ERR NULL!");
             }
         });
     }
 
 //search for deepest left paran and stop when you see first right, do evaluation between those indexes
-    private static void checkForParanthesis(ArrayList<String> expression){
-        int currentIndex = 0;
-        for(int i = 0; i < expression.size(); i++){
-            if(expression.get(i).equals("(")){
-                currentIndex = i;
+    private static void checkForParanthesis(){
+        if(calculationArray.contains("(") && calculationArray.contains(")")){
+            int lastLeftParanIndex = 0;
+            int firstRightParanIndex = 0;
+            for(int i = 0; i < calculationArray.size(); i++){
+                if(calculationArray.get(i).equals("(")){
+                    lastLeftParanIndex = i;
+                }
+                if(calculationArray.get(i).equals(")")){
+                    firstRightParanIndex = i;
+                    break;
+                }
+            }
+            System.out.println("LEFT: " + lastLeftParanIndex);
+            System.out.println("RIGHT: " + firstRightParanIndex);
+            System.out.println("SIZE: " + calculationArray.size());
+            ArrayList<String> expression = new ArrayList<>();
+            for(int i = lastLeftParanIndex + 1; i < firstRightParanIndex; i++){
+                expression.add(calculationArray.get(i));
+                System.out.println("Added: " + calculationArray.get(i));
+            }
+            doCalculations(expression);
+            int removeCount = (firstRightParanIndex - lastLeftParanIndex);
+            int removeIndex = lastLeftParanIndex + 1;
+            System.out.println("BEFORE REMOVE " + calculationArray);
+            while(removeCount > 0){
+                calculationArray.remove(removeIndex);
+                removeCount--;
+            }
+            calculationArray.set((lastLeftParanIndex), RESULT);
+            System.out.println("AFTER UPDATE " + calculationArray);
+            checkForParanthesis();
+        } else {
+            doCalculations(calculationArray);
+        }
+    }
+
+    private static void doCalculations(ArrayList<String> expression){
+        System.out.println(expression);
+        System.out.println("In doCalculations");
+        while(expression.size() > 1) {
+            while (expression.contains(EXPONENT)){
+                int index = expression.indexOf(EXPONENT);
+                RESULT = Double.toString(
+                        Math.pow(Double.parseDouble(expression.get(index - 1)) ,
+                                Double.parseDouble(expression.get(index + 1))));
+                updateCalculationWithResult(index, expression);
+            }
+            while (expression.contains(MULTIPLY)){
+                int index = expression.indexOf(MULTIPLY);
+                RESULT = Double.toString(Double.parseDouble(expression.get(index - 1)) *
+                        Double.parseDouble(expression.get(index + 1)));
+                updateCalculationWithResult(index, expression);
+            }
+            while (expression.contains(DIVIDE)){
+                int index = expression.indexOf(DIVIDE);
+                if(expression.get(index + 1).equals("0")){
+                    RESULT = "undefined";
+                    calculationScreen.setText("ERR!");
+                    expression.clear();
+                    break;
+                }
+                RESULT = Double.toString(Double.parseDouble(expression.get(index - 1)) /
+                        Double.parseDouble(expression.get(index + 1)));
+                updateCalculationWithResult(index, expression);
+            }
+            while (expression.contains(ADD)) {
+                int index = expression.indexOf(ADD);
+                RESULT = Double.toString(Double.parseDouble(expression.get(index - 1)) +
+                        Double.parseDouble(expression.get(index + 1)));
+                updateCalculationWithResult(index, expression);
+            }
+            while (expression.contains(SUBTRACT)){
+                int index = expression.indexOf(SUBTRACT);
+                RESULT = Double.toString(Double.parseDouble(expression.get(index - 1)) -
+                        Double.parseDouble(expression.get(index + 1)));
+                updateCalculationWithResult(index, expression);
+            }
+            for(int i = 0; i <calculationArray.size(); i++){
+                System.out.println(calculationArray.get(i));
             }
         }
-
     }
+
     private static void setOnEqualsPressed(Button equals) {
         equals.setOnAction((e -> {
             if (isCalculationArrayFilled()) {
-                while(calculationArray.size() > 1) {
-                        while (calculationArray.contains(EXPONENT)){
-                            int index = calculationArray.indexOf(EXPONENT);
-                            RESULT = Double.toString(
-                                    Math.pow(Double.parseDouble(calculationArray.get(index - 1)) ,
-                                            Double.parseDouble(calculationArray.get(index + 1))));
-                            updateCalculationWithResult(index);
-                        }
-                        while (calculationArray.contains(MULTIPLY)){
-                            int index = calculationArray.indexOf(MULTIPLY);
-                            RESULT = Double.toString(Double.parseDouble(calculationArray.get(index - 1)) *
-                                    Double.parseDouble(calculationArray.get(index + 1)));
-                            updateCalculationWithResult(index);
-                        }
-                        while (calculationArray.contains(DIVIDE)){
-                            int index = calculationArray.indexOf(DIVIDE);
-                            if(calculationArray.get(index + 1).equals("0")){
-                                RESULT = "undefined";
-                                calculationScreen.setText("ERR!");
-                                calculationArray.clear();
-                                break;
-                            }
-                            RESULT = Double.toString(Double.parseDouble(calculationArray.get(index - 1)) /
-                                    Double.parseDouble(calculationArray.get(index + 1)));
-                            updateCalculationWithResult(index);
-                        }
-                        while (calculationArray.contains(ADD)) {
-                            int index = calculationArray.indexOf(ADD);
-                            RESULT = Double.toString(Double.parseDouble(calculationArray.get(index - 1)) +
-                                    Double.parseDouble(calculationArray.get(index + 1)));
-                            updateCalculationWithResult(index);
-                        }
-                        while (calculationArray.contains(SUBTRACT)){
-                            int index = calculationArray.indexOf(SUBTRACT);
-                            RESULT = Double.toString(Double.parseDouble(calculationArray.get(index - 1)) -
-                                    Double.parseDouble(calculationArray.get(index + 1)));
-                            updateCalculationWithResult(index);
-                        }
-                }
+                checkForParanthesis();
             } else {
                 mainScreen.setText("ERR NULL!");
             }
@@ -328,20 +365,16 @@ public class Main extends Application {
         return lastRow;
     }
 
-    private static void updateCalculationWithResult(int operatorIndex){
-        System.out.println("BEFORE");
-        for(int i = 0; i < calculationArray.size(); i++){
-            System.out.println("INDEX " + i + ": " + calculationArray.get(i));
-        }
-        calculationArray.remove(operatorIndex);
-        calculationArray.remove(operatorIndex);
+    private static void updateCalculationWithResult(int operatorIndex, ArrayList<String> expression){
+        System.out.println("INDEX: " + operatorIndex);
+        expression.remove(operatorIndex);
+        expression.remove(operatorIndex);
         if(operatorIndex >= 1){
-            calculationArray.set((operatorIndex - 1), RESULT);
             System.out.println("RESULT: " + RESULT);
+            expression.set((operatorIndex - 1), RESULT);
         }
-        System.out.println("AFTER");
-        for(int i = 0; i < calculationArray.size(); i++){
-            System.out.println("INDEX " + i + ": " + calculationArray.get(i));
+        for(int i = 0; i < expression.size(); i++){
+            System.out.println("INDEX " + i + ": " + expression.get(i));
         }
     }
 
