@@ -71,7 +71,7 @@ public class Body implements ButtonLogic {
                 calculationArray.add(buttontext.getValue());
                 mainScreen.setText(buttontext.getValue());
                 calculationScreen.setText(buttontext.getValue());
-            } else if (Buttons.operators.contains(calculationArray.get(calculationArray.size() - 1))) {
+            } else if (Buttons.operators.containsKey(calculationArray.get(calculationArray.size() - 1))) {
                 calculationArray.add(buttontext.getValue());
                 mainScreen.setText(buttontext.getValue());
                 String calculationString = calculationScreen.getText();
@@ -113,9 +113,8 @@ public class Body implements ButtonLogic {
 
     public void setOnEqualsPressed() {
             if (isCalculationArrayFilled()) {
-                checkForParanthesis();
+                RESULT = new ShuntingYard(calculationArray).doShuntingYard();
             } else {
-                System.out.println("lmao wtf");
                 mainScreen.setText(error);
             }
             mainScreen.setText(RESULT);
@@ -171,90 +170,6 @@ public class Body implements ButtonLogic {
 
     private boolean isCalculationArrayFilled() {
         return !calculationArray.isEmpty() && calculationArray.size() >= 3;
-    }
-
-    //search for deepest left paran and stop when you see first right, do evaluation between those indexes
-    private void checkForParanthesis(){
-        while(calculationArray.contains("(") && calculationArray.contains(")")){
-            int lastLeftParanIndex = 0;
-            int firstRightParanIndex = 0;
-            for(int i = 0; i < calculationArray.size(); i++){
-                if(calculationArray.get(i).equals("(")){
-                    lastLeftParanIndex = i;
-                }
-                if(calculationArray.get(i).equals(")")){
-                    firstRightParanIndex = i;
-                    break;
-                }
-            }
-            ArrayList<String> expression = new ArrayList<>();
-            for(int i = lastLeftParanIndex + 1; i < firstRightParanIndex; i++){
-                expression.add(calculationArray.get(i));
-            }
-            doCalculations(expression);
-            int removeCount = (firstRightParanIndex - lastLeftParanIndex);
-            int removeIndex = lastLeftParanIndex + 1;
-            while(removeCount > 0){
-                calculationArray.remove(removeIndex);
-                removeCount--;
-            }
-            calculationArray.set((lastLeftParanIndex), RESULT);
-        }
-        doCalculations(calculationArray);
-
-    }
-
-    private void doCalculations(ArrayList<String> expression){
-        while(expression.size() > 1) {
-            while (expression.contains(ButtonText.EXPONENT.getValue())){
-                int index = expression.indexOf(ButtonText.EXPONENT.getValue());
-                RESULT = Double.toString(
-                        Math.pow(Double.parseDouble(expression.get(index - 1)) ,
-                                Double.parseDouble(expression.get(index + 1))));
-                updateCalculationWithResult(index, expression);
-            }
-            while (expression.contains(ButtonText.MULTIPLY.getValue())){
-                int index = expression.indexOf(ButtonText.MULTIPLY.getValue());
-                RESULT = Double.toString(Double.parseDouble(expression.get(index - 1)) *
-                        Double.parseDouble(expression.get(index + 1)));
-                updateCalculationWithResult(index, expression);
-            }
-            while (expression.contains(ButtonText.DIVIDE.getValue())){
-                int index = expression.indexOf(ButtonText.DIVIDE.getValue());
-                if(expression.get(index + 1).equals("0")){
-                    RESULT = undefined;
-                    calculationScreen.setText(error);
-                    expression.clear();
-                    break;
-                }
-                RESULT = Double.toString(Double.parseDouble(expression.get(index - 1)) /
-                        Double.parseDouble(expression.get(index + 1)));
-                updateCalculationWithResult(index, expression);
-            }
-            while (expression.contains(ButtonText.ADD.getValue())) {
-                int index = expression.indexOf(ButtonText.ADD.getValue());
-                System.out.println("ADDING: " + expression.get(index - 1) + " AND " +
-                        expression.get(index + 1));
-                RESULT = Double.toString(Double.parseDouble(expression.get(index - 1)) +
-                        Double.parseDouble(expression.get(index + 1)));
-                System.out.println("RESULT: " + RESULT);
-                updateCalculationWithResult(index, expression);
-            }
-            while (expression.contains(ButtonText.SUBTRACT.getValue())){
-                int index = expression.indexOf(ButtonText.SUBTRACT.getValue());
-                RESULT = Double.toString(Double.parseDouble(expression.get(index - 1)) -
-                        Double.parseDouble(expression.get(index + 1)));
-                updateCalculationWithResult(index, expression);
-            }
-        }
-    }
-
-    private void updateCalculationWithResult(int operatorIndex, ArrayList<String> expression){
-        expression.remove(operatorIndex);
-        expression.remove(operatorIndex);
-        if(operatorIndex >= 1){
-            expression.set((operatorIndex - 1), RESULT);
-        }
     }
 
 }
