@@ -8,11 +8,6 @@ import javafx.application.Application;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
 
-/* Implement an Array as a Queue */
-/* Implement Shunting Yard  */
-/* Implement Reverse Polish Notation */
-// Clean Functions, every statement should be at the same level abstraction
-//
 
 public class Main extends Application {
 

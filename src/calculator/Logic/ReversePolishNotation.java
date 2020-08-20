@@ -1,7 +1,6 @@
 package calculator.Logic;
 
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.Queue;
 
@@ -23,10 +22,8 @@ public class ReversePolishNotation {
                 operator = calculationArray.get(i);
                 rightValue = calculationArray.get(i - 1);
                 leftValue = calculationArray.get(i - 2);
-                System.out.println(calculationArray);
                 calculationArray.remove(i - 2);
                 calculationArray.remove(i - 2);
-                System.out.println(calculationArray);
                 result = doCalculations(operator,rightValue,leftValue);
                 calculationArray.set(i - 2, result);
                 i--;
@@ -38,7 +35,6 @@ public class ReversePolishNotation {
 
     private String doCalculations(String operator, String rightValue, String leftValue) {
         String result = "";
-        System.out.println("Operator: " + operator + " Right: " + rightValue + " Left: " + leftValue);
         if(operator.equals(ButtonText.ADD.getValue())){
             result = Double.toString(Double.parseDouble(leftValue) + Double.parseDouble(rightValue));
         }
